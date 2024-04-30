@@ -6,7 +6,7 @@ const app = express();
 
 // Omogućite CORS samo za specifičnu domenu
 app.use(cors({
-    origin: 'https://serveremail-5.onrender.com',
+    origin: 'https://cvecedolece.000webhostapp.com',
 }));
 
 app.use(express.json());
