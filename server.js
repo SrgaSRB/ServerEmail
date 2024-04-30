@@ -1,32 +1,25 @@
 const express = require('express');
-const cors = require('cors');
+const cors = require('cors'); // Dodavanje CORS-a
 const nodemailer = require('nodemailer');
 
 const app = express();
-
-// Omogućite CORS samo za specifičnu domenu
-app.use(cors({
-    origin: 'https://cvecedolece.000webhostapp.com',
-}));
-
+app.use(cors()); // Omogućava CORS za sve izvore
 app.use(express.json());
 
-app.post('/send-email', async (req, res) => {
-    const { firstName, lastName, address, phone, email, napomena, products } = req.body;
+app.post('/send-email', (req, res) => {
+    const { firstName, lastName, address, phone, email, products } = req.body;
 
     if (!products || !Array.isArray(products)) {
         res.status(400).json({ message: "Invalid 'products' data" });
         return;
     }
 
-    const sendtomail = 'apatinsll@gmail.com'
+    const sendtomail = ['apatinsll@gmail.com', 'vasiljevic.anastasija.1@gmail.com']
 
-    const messageText = `\nNova porudžbina od ${firstName} ${lastName}.\nProizvodi: ${products.join(', ')}.\nemail: ${email}\nBroj telefona: ${phone}\nAdresa: ${address}\nNAPOMENA: ${napomena}`;
-    const userMessage = `Poštovani,\nporudzbina je uspesno primnjena.\nOčekujte telefonski poziv na broj ${phone} radi potvrde.\n`;
+    const messageText = `\nNova porudžbina od ${firstName} ${lastName}.\nProizvodi: ${products.join(', ')}.\nemail: ${email}\nBroj telefona: ${phone}\nAdresa: ${address}`;
 
     // Ispiši poruku pre slanja e-maila
-    console.log('Poruka koja će biti poslata na', sendtomail, '\n---------------------------------',messageText, '\n---------------------------------\n');
-    console.log('User poruka\n---------------------------------\n',userMessage, '\n---------------------------------\n');
+    console.log('Poruka koja će biti poslata na', sendtomail, ':\n---------------------------------',messageText, '\n---------------------------------\n');
 
     const transporter = nodemailer.createTransport({
         service: 'Gmail',
@@ -38,29 +31,20 @@ app.post('/send-email', async (req, res) => {
 
     const mailOptions = {
         from: 'srdjandelic02@gmail.com',
-        to: 'apatinsll@gmail.com',
+        to: ['apatinsll@gmail.com', 'vasiljevic.anastasija.1@gmail.com'],
         subject: 'Nova porudžbina',
         text: messageText,
     };
 
-    const userMail = {
-        from: 'srdjandelic02@gmail.com',
-        to: ['apatinsll@gmail.com', email],
-        subject: 'Cveće Doleće porudžbina',
-        text: userMessage,
-    };
-
     try {
-        // Koristite Promise.all da pošaljete oba e-maila u isto vreme
-        await Promise.all([transporter.sendMail(mailOptions), transporter.sendMail(userMail)]);
-        res.json({ message: 'E-mailovi su uspešno poslati' });
+        transporter.sendMail(mailOptions); 
+        res.json({ message: 'E-mail poslat uspešno' });
     } catch (error) {
-        res.status(500).json({ message: 'Došlo je do greške pri slanju e-mailova', error: error.message });
+        res.status(500).json({ message: 'Došlo je do greške pri slanju e-maila' });
     }
-
 });
 
-const PORT = process.env.PORT || 3000; // Port koji želite koristiti
-app.listen(PORT, () => {
-    console.log(`Server pokrenut na portu ${PORT}`);
+const port = 3000;
+app.listen(port, () => {
+    console.log(`Server radi na portu ${port}`);
 });
